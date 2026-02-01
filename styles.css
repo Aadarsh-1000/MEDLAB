@@ -91,12 +91,13 @@ header {
 .nav-links {
     position: absolute;
     top: 20px;
-    left: 50%;
+    left: 53%;
     transform: translateX(-50%);
     display: flex;
     gap: 30px;
     align-items: center;
     font-family: 'Inter', sans-serif;
+
 }
 
 a {
@@ -121,6 +122,11 @@ a {
     left: 675px;
 }
 
+.login-button, .signup-button{
+    position: absolute;
+
+}
+
 .login-button {
     position: absolute;
     right: -120%;
@@ -143,5 +149,9 @@ a {
     background-color: transparent;
     position: relative;
     margin-left: 90%;
-    min-width: max-content
+    min-width: max-content;
+}
+.signup-button:hover {
+    text-decoration: underline;
+    
 }

@@ -1,31 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEDLAB - Sign Up </title>
     <link rel="stylesheet" href="signup.css">
-    
+    <script type ="text/javascript" src="signup.js" defer></script>
 </head>
+
 <body>
     <div class="wrapper">
         <h1><img src="logo.png" alt="MEDLAB Logo" height="38">Sign up</h1>
+        <p id="error-message"></p>
         <form id="form">
             <div>
-                <label for="firstname-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></label>
-                <input type="text" name="firstname" id="firstname-input" placeholder="First Name"></div>
+                <label for="firstname-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                        viewBox="0 -960 960 960" width="24px" fill="#ffffff">
+                        <path
+                            d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z" />
+                    </svg></label>
+                <input type="text" name="firstname" id="firstname-input" placeholder="First Name">
+            </div>
             <div>
-                <label for="email-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z"/></svg></label>
-                <input type="email" name="email" id="email-input" placeholder="Email"></div>
+                <label for="email-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                        width="24px" fill="#ffffff">
+                        <path
+                            d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
+                    </svg></label>
+                <input type="email" name="email" id="email-input" placeholder="Email">
+            </div>
             <div>
-                <label for="password-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></label>
-                <input type="password" name="password" id="password-input" placeholder="Password"></div>
+                <label for="password-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                        viewBox="0 -960 960 960" width="24px" fill="#ffffff">
+                        <path
+                            d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z" />
+                    </svg></label>
+                <input type="password" name="password" id="password-input" placeholder="Password">
+            </div>
             <div>
-                <label for="repeat-password-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></label></label>
-                <input type="password" name="repeat-password" id="repeat-password-input" placeholder="Confirm Password"></div>
+                <label for="repeat-password-input"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                        viewBox="0 -960 960 960" width="24px" fill="#ffffff">
+                        <path
+                            d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z" />
+                    </svg></label></label>
+                <input type="password" name="repeat-password" id="repeat-password-input" placeholder="Confirm Password">
+            </div>
             <button type="submit">Sign Up</button>
         </form>
         <p>Already have an account? <a href="login.html">Login</a></p>
     </div>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        :root {
+            --accent-color: #a7a6ac;
+            --base-color: white;
+            --text-color: #2E2B41;
+            --input-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        html {
+            font-size: 12pt;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        body {
+            min-height: 100vh;
+            background-image: url(bg.jpg);
+            background-size: cover;
+            background-position: right;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .wrapper {
+            box-sizing: border-box;
+            background-color: var(--base-color);
+            height: 100vh;
+            width: max(40%, 600px);
+            padding: 10px;
+            border-radius: 0 20px 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        form {
+            width: min(400px, 100%);
+            margin-top: 20px;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        form>div {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        form label {
+            flex-shrink: 0;
+            height: 50px;
+            width: 50px;
+            background-color: var(--accent-color);
+            fill: var(--base-color);
+            border-radius: 10px 0 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        form input {
+            box-sizing: border-box;
+            flex-grow: 1;
+            min-width: 0;
+            height: 50px;
+            padding: 1em;
+            font: inherit;
+            border-radius: 0 10px 10px 0;
+            border: none;
+            border: 2px solid var(--input-color);
+            border-left: none;
+            background-color: var(--input-color);
+            transition: 150ms ease;
+        }
+
+        form input:hover {
+            border-color: var(--accent-color);
+        }
+
+        form input:focus {
+            outline: none;
+            border-color: var(--text-color);
+        }
+
+        div:has(input:focus)>label {
+            background-color: var(--text-color);
+        }
+
+        form input::placeholder {
+            color: var(--text-color);
+        }
+
+        form button {
+            margin-top: 20px;
+            padding: 10px 26px;
+            font: inherit;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--base-color);
+            background-color: var(--text-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: var(--accent-color);
+        }
+
+        @media(max-width: 1100px) {
+            .wrapper {
+                width: min(600px, 100%);
+                border-radius: 0;
+            }
+        }
+
+        form div.incorrect input {
+            border-color: #f06272;
+        }
+
+        form div.incorrect label {
+            background-color: #f06272;
+        }
+        #error-message {
+            color: #f06272;
+        }
+    </style>
 </body>
+
 </html>
