@@ -38,7 +38,15 @@ function getSignupFormErrors(firstname, email, password, repeat_password){
         errors.push('Password is required')
         password_input.parentElement.classList.add('incorrect')
     }
-
+    if(password.length < 6){
+        errors.push('Password must have at least 6 characters')
+        password_input.parentElement.classList.add('incorrect')
+    }
+    if(password !== repeat_password){
+        errors.push('Passwords do not match')
+        repeat_password_input.parentElement.classList.add('incorrect')
+        password_input.parentElement.classList.add('incorrect')
+    }
     return errors;
 }
 const allInputs = [firstname_input, email_input, password_input, repeat_password_input]
