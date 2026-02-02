@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+
+:root {
+    --accent-color: #a7a6ac;
+    --base-color: white;
+    --text-color: #2E2B41;
+    --input-color: #f5f5f5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Varela Round', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--base-color);
+    color: var(--text-color);
+}
+
+header {
+    display: flex;
+}
+
+.logo {
+    display: flex;
+}
+
+h1 {
+    position: absolute;
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-family: 'Varela Round', sans-serif;
+    letter-spacing: 3px;
+    margin-left: 5%;
+    margin-top: 3%;
+}
+
+nav {
+    position: absolute;
+    top: 5.5%;
+    right: 32%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 500px;
+    padding: 10px;
+    gap: 40px;
+    background-color: #ecececd1;
+    border-radius: 20px;
+    backdrop-filter: blur(2px);
+    z-index: 1;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    z-index: 10;
+}
+
+select {
+    margin: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--input-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    outline: none;
+    position: absolute;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    top: 10%;
+    left: 25%;
+    max-height: min-content;
+}
+
+label {
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--input-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    outline: none;
+    margin: 20px;
+    position: absolute;
+    top: 10%;
+    left: 4%;
+    min-height: fit-content;
+}
+
+.box-1 {
+    position: absolute;
+    top: 45%;
+    left: 5%;
+    width: 60%;
+    height: 50%;
+    background-color: transparent;
+    border: 2px solid var(--accent-color);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(2px);
+    gap: 20px;
+    min-height: fit-content;
+}
+
+.box-2 {
+    position: absolute;
+    top: 45%;
+    right: 3%;
+    width: 30%;
+    height: 50%;
+    background-color: transparent;
+    border: 2px solid var(--accent-color);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(2px);
+    gap: 20px;
+    min-height: fit-content;
+}
+
+.dashboard {
+    top: 20%;
+}
+
+.b1 {
+    background-color: transparent;
+    width: 30%;
+    height: 15%;
+    border: 2px solid var(--accent-color);
+    position: absolute;
+    border-radius: 20px;
+    top: 27%;
+    left: 5%;
+}
+
+.b2 {
+    background-color: transparent;
+    width: 30%;
+    height: 15%;
+    border: 2px solid var(--accent-color);
+    position: absolute;
+    border-radius: 20px;
+    top: 27%;
+    left: 38%;
+}
+
+.b3 {
+    background-color: transparent;
+    width: 27%;
+    height: 15%;
+    border: 2px solid var(--accent-color);
+    position: absolute;
+    border-radius: 20px;
+    top: 27%;
+    left: 70%;
+}
