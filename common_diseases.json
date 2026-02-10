@@ -1,0 +1,67 @@
+{
+  "COMMON:COLD": {
+    "id": "COMMON:COLD",
+    "name": "Common cold",
+    "symptoms": [
+      "HP:0002099",
+      "HP:0002840",
+      "HP:0033050",
+      "HP:0012378"
+    ]
+  },
+  "COMMON:FLU": {
+    "id": "COMMON:FLU",
+    "name": "Influenza (flu)",
+    "symptoms": [
+      "HP:0001945",
+      "HP:0002099",
+      "HP:0012378",
+      "HP:0000823"
+    ]
+  },
+  "COMMON:COVID19": {
+    "id": "COMMON:COVID19",
+    "name": "COVID-19",
+    "symptoms": [
+      "HP:0001945",
+      "HP:0002099",
+      "HP:0012378",
+      "HP:0033050"
+    ]
+  },
+  "COMMON:ALLERGIC_RHINITIS": {
+    "id": "COMMON:ALLERGIC_RHINITIS",
+    "name": "Allergic rhinitis",
+    "symptoms": [
+      "HP:0002840",
+      "HP:0002099",
+      "HP:0033050"
+    ]
+  },
+  "COMMON:BRONCHITIS": {
+    "id": "COMMON:BRONCHITIS",
+    "name": "Acute bronchitis",
+    "symptoms": [
+      "HP:0002099",
+      "HP:0001945",
+      "HP:0012378"
+    ]
+  },
+  "COMMON:SINUSITIS": {
+    "id": "COMMON:SINUSITIS",
+    "name": "Acute sinusitis",
+    "symptoms": [
+      "HP:0002840",
+      "HP:0033050",
+      "HP:0001945"
+    ]
+  },
+  "COMMON:PHARYNGITIS": {
+    "id": "COMMON:PHARYNGITIS",
+    "name": "Pharyngitis (sore throat)",
+    "symptoms": [
+      "HP:0033050",
+      "HP:0001945"
+    ]
+  }
+}
