@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptoms Selector</title>
+
+</head>
+
+<body>
+
+    <div class="box-1">
+        <label for="symptoms">Choose a symptom</label>
+
+        <div class="Btn"><button onclick="goToResults()">Diagnose</button></div>
+
+        <input id="symptoms" placeholder="Type a symptom and press Enter">
+        <div class="box">
+            <div class="symbox">
+            </div>
+        </div>
+        <div class="txt">
+            <p> Please select your symptoms</p>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById("symptoms");
+        const symBox = document.querySelector(".symbox");
+
+        const symArray = [
+
+            // General / constitutional
+            "fever",
+            "low-grade fever",
+            "chills",
+            "rigors",
+            "night sweats",
+            "fatigue",
+            "malaise",
+            "weight loss",
+            "weight gain",
+            "loss of appetite",
+            "dehydration",
+
+            // ENT / upper respiratory
+            "cough",
+            "dry cough",
+            "productive cough",
+            "sore throat",
+            "runny nose",
+            "nasal congestion",
+            "post-nasal drip",
+            "hoarseness",
+            "ear pain",
+            "ear discharge",
+            "sinus pain",
+            "anosmia",
+            "loss of taste",
+
+            // Respiratory
+            "shortness of breath",
+            "wheeze",
+            "chest tightness",
+            "pleuritic chest pain",
+            "hemoptysis",
+            "orthopnea",
+
+            // Cardiovascular
+            "chest pain",
+            "palpitations",
+            "syncope",
+            "near syncope",
+            "leg swelling",
+            "cyanosis",
+
+            // Gastrointestinal
+            "abdominal pain",
+            "epigastric pain",
+            "nausea",
+            "vomiting",
+            "hematemesis",
+            "diarrhoea",
+            "constipation",
+            "bloody stools",
+            "melena",
+            "bloating",
+            "heartburn",
+            "dysphagia",
+            "odynophagia",
+
+            // Genitourinary
+            "dysuria",
+            "urinary frequency",
+            "urgency",
+            "nocturia",
+            "hematuria",
+            "flank pain",
+            "reduced urine output",
+            "incontinence",
+            "penile discharge",
+            "vaginal discharge",
+            "pelvic pain",
+
+            // Musculoskeletal
+            "myalgia",
+            "joint pain",
+            "joint swelling",
+            "back pain",
+            "neck stiffness",
+            "muscle weakness",
+            "bone pain",
+
+            // Neurological
+            "headache",
+            "severe headache",
+            "dizziness",
+            "vertigo",
+            "confusion",
+            "altered consciousness",
+            "seizures",
+            "tremors",
+            "numbness",
+            "tingling",
+            "photophobia",
+            "blurred vision",
+            "double vision",
+            "difficulty speaking",
+            "difficulty walking",
+
+            // Dermatological
+            "rash",
+            "itching",
+            "hives",
+            "skin discoloration",
+            "jaundice",
+            "ulcers",
+            "bruising",
+            "hair loss",
+
+            // Endocrine / metabolic
+            "heat intolerance",
+            "cold intolerance",
+            "polyuria",
+            "polydipsia",
+            "polyphagia",
+            "sweating",
+
+            // Psychiatric / cognitive
+            "anxiety",
+            "depression",
+            "insomnia",
+            "hypersomnia",
+            "memory loss",
+            "difficulty concentrating"
+        ];
+
+
+        let symps = [];
+
+        function addSymptom(raw) {
+            const value = raw.toLowerCase().trim();
+            if (!value) return;
+
+            if (!symArray.includes(value)) {
+                alert("Not a valid symptom. Please check the spelling");
+                return;
+            }
+
+            if (symps.includes(value)) {
+                alert("Same symptom cannot be placed twice.");
+                return;
+            }
+
+            if (symps.length >= 10) {
+                alert("Can only upload up to 10 symptoms.");
+                return;
+            }
+
+            symps.push(value);
+
+            const tag = document.createElement("div");
+            tag.className = "symptoms";
+            tag.textContent = value;
+
+            // click to remove
+            tag.onclick = () => {
+                symps = symps.filter(s => s !== value);
+                tag.remove();
+            };
+
+            symBox.appendChild(tag);
+        }
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                addSymptom(input.value);
+                input.value = "";
+            }
+
+            // backspace removes last pill
+            if (e.key === "Backspace" && input.value === "" && symps.length) {
+                symps.pop();
+                symBox.lastChild.remove();
+            }
+        });
+        function goToResults() {
+            console.log("Saving symptoms:", symps);
+            localStorage.setItem(
+                "selectedSymptoms",
+                JSON.stringify(symps)
+            );
+            window.location.href = "rel.html";
+        }
+
+
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+
+        :root {
+            --input-color: #f2f2f2;
+            --text-color: #111;
+        }
+
+        body {
+            font-family: "poppins";
+            background-image: linear-gradient(to top, rgba(0, 221, 255, 0.258), rgb(255, 255, 255));
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .box-1 {
+            border: 3px solid #b8b8b811;
+            border-radius: 15px;
+            text-align: center;
+            width: 50%;
+            position: absolute;
+            left: 25%;
+            bottom: 45%;
+            transform: translateY(50%);
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        label {
+            display: flex;
+            margin-left: 38%;
+            margin-bottom: 40px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background-color: var(--input-color);
+            color: var(--text-color);
+            width: fit-content;
+            justify-content: center;
+        }
+
+        input {
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--input-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            width: 300px;
+            font-family: "poppins";
+        }
+
+        .symbox {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+
+        }
+
+        .symptoms {
+            background-color: #5757571e;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+
+        }
+
+        p {
+            font-family: "Poppins";
+            font-weight: 500;
+            border: 2px solid #9a9a9a17;
+            width: 50%;
+            border-radius: 15px;
+            margin-left: 24%;
+            border-width: fit-content;
+        }
+        .btn{
+            border-radius: 15px;
+        }
+    </style>
+
+</body>
+
+</html>

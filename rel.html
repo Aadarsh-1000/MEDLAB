@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results Page</title>
+</head>
+
+<body>
+
+  <h2>Diagnosis Results</h2>
+  <div id="diagnosis-results"></div>
+
+  <script>
+    // ✅ LOAD SYMPTOMS FROM STORAGE
+    const symps = JSON.parse(
+      localStorage.getItem("selectedSymptoms")
+    ) || [];
+
+    console.log("Loaded symptoms:", symps);
+
+    if (symps.length === 0) {
+      document.getElementById("diagnosis-results").innerHTML =
+        "<p>No symptoms provided.</p>";
+    } else {
+      diagnose();
+    }
+
+    async function diagnose() {
+      try {
+        const res = await fetch("/api/diagnose", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ symptoms: symps })
+        });
+
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        console.error(err);
+        document.getElementById("diagnosis-results").innerHTML =
+          "<p>Failed to connect to backend.</p>";
+      }
+    }
+
+    function renderResults(data) {
+      const container = document.getElementById("diagnosis-results");
+      container.innerHTML = "";
+
+      if (!data.matches || data.matches.length === 0) {
+        container.innerHTML = "<p>No matching conditions found.</p>";
+        return;
+      }
+
+      data.matches.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "result";
+        div.innerHTML = `
+          <strong>${d.name}</strong><br>
+          Matched symptoms: ${d.matchedSymptoms}
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+
+  <style>
+    body { font-family: sans-serif; background: #fafafa; }
+    .result { background: #eee; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+  </style>
+
+</body>
+</html>

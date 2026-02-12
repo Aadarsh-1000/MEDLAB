@@ -102,45 +102,6 @@ nav a {
     z-index: 10;
 }
 
-select {
-    margin: 20px;
-    padding: 5px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--input-color);
-    color: var(--text-color);
-    font-size: 1rem;
-    outline: none;
-    position: absolute;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    top: 150%;
-    width: 50%;
-    left: 20%;
-    max-height: 40px;
-    transition: background-color 0.3s ease;
-}
-
-select:hover {
-    background-color: #e0e0e0;
-}
-
-label {
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--input-color);
-    color: var(--text-color);
-    font-size: 1rem;
-    outline: none;
-    margin: 20px;
-    position: absolute;
-    top: 120%;
-    left: 17%;
-    min-height: fit-content;
-}
-
 .box-1 {
     position: absolute;
     top: 23%;
@@ -223,7 +184,7 @@ label {
     border: 2px solid #7c7b7b07;
 }
 button:hover{
-    background-color: #00fff7;
+    background-color: #00fff7b9;
     color: #ffffff;
     font-size: 14px;
 }

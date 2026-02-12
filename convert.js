@@ -1,13 +1,7 @@
 const fs = require("fs");
-
-/* =========================
-   LOAD HPO (SYMPTOMS)
-========================= */
 console.log("Loading HPO...");
 
 const hpoData = JSON.parse(fs.readFileSync("full.json", "utf8"));
-
-// collect nodes from ALL graphs
 const hpoNodes = hpoData.graphs.flatMap(g => g.nodes || []);
 
 const symptoms = hpoNodes
@@ -28,11 +22,8 @@ const symptoms = hpoNodes
   }));
 
 fs.writeFileSync("symptoms.json", JSON.stringify(symptoms, null, 2));
-console.log("✅ Saved", symptoms.length, "HPO symptoms");
+console.log("Saved", symptoms.length, "HPO symptoms");
 
-/* =========================
-   LOAD DOID (DISEASES)
-========================= */
 console.log("Loading DOID...");
 
 const text = fs.readFileSync("doid.obo", "utf8");
@@ -67,11 +58,7 @@ for (const block of blocks) {
 }
 
 fs.writeFileSync("diseases.json", JSON.stringify(diseases, null, 2));
-console.log("✅ Diseases parsed:", diseases.length);
-
-/* =========================
-   LINK DISEASES → SYMPTOMS
-========================= */
+console.log("Diseases parsed:", diseases.length);
 console.log("Linking diseases to HPO symptoms...");
 
 const lines = fs
@@ -114,6 +101,6 @@ fs.writeFileSync(
 );
 
 console.log(
-  "✅ Linked diseases:",
+  "Linked diseases:",
   Object.keys(diseaseToSymptoms).length
 );
