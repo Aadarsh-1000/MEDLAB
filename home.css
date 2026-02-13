@@ -65,6 +65,13 @@ header {
     border: 5px solid #93939315;
 }
 
+.start {
+    border-radius: 50%;
+    width: 3%;
+    min-height: 1%;
+
+}
+
 #age-input:focus {
     box-shadow: 0 0 0 4px rgba(167, 166, 172, 0.08);
     outline: none;
@@ -169,7 +176,7 @@ nav a {
     transform: translateX(-50%);
     display: flex;
     gap: 20px;
-    
+
 
 }
 
@@ -183,7 +190,8 @@ nav a {
     cursor: pointer;
     border: 2px solid #7c7b7b07;
 }
-button:hover{
+
+button:hover {
     background-color: #00fff7b9;
     color: #ffffff;
     font-size: 14px;

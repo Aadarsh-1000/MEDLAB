@@ -1,113 +1,98 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const cors = require("cors");
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-/* =========================
-   MIDDLEWARE
-========================= */
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+
+// Explicit preflight handler
+app.options('*', cors());
+
 app.use(express.json());
-app.use(express.static(__dirname));
 
-/* =========================
-   LOAD COMMON DISEASES
-========================= */
-let commonDiseaseMap = {};
+app.use((req, res, next) => {
+  console.log(`➡️  ${req.method} ${req.url}`);
+  next();
+});
+let diseasesData = { conditions: [] };
+
 try {
-  commonDiseaseMap = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "common_diseases.json"), "utf8")
-  );
-  console.log("Loaded common diseases");
+  const raw = fs.readFileSync(path.join(__dirname, 'diseases.json'), 'utf8');
+  diseasesData = JSON.parse(raw);
+  console.log("✅ diseases.json loaded");
 } catch (err) {
-  console.error("Failed to load common_diseases.json:", err.message);
+  console.error('❌ Failed to load diseases.json:', err.message);
 }
 
-/* =========================
-   SYMPTOM → HPO MAP
-   (minimal, expandable)
-========================= */
-const symptomToHPO = {
-  "cough": "HP:0002099",
-  "runny nose": "HP:0002840",
-  "nasal congestion": "HP:0002840",
-  "sore throat": "HP:0033050",
-  "fatigue": "HP:0012378",
-  "fever": "HP:0001945",
-  "headache": "HP:0000823"
-};
+app.post('/api/diagnose', (req, res) => {
+  const { symptoms, age } = req.body;
 
-/* =========================
-   DIAGNOSIS ENDPOINT
-========================= */
-app.post("/api/diagnose", (req, res) => {
-  const { symptoms } = req.body;
-
-  if (!Array.isArray(symptoms) || symptoms.length === 0) {
-    return res.status(400).json({
-      error: "symptoms must be a non-empty array"
-    });
+  if (!Array.isArray(symptoms)) {
+    return res.status(400).json({ error: 'symptoms must be an array' });
   }
+  const matches = [];
+  if (diseasesData.conditions) {
+    for (const disease of diseasesData.conditions) {
 
-  // convert text symptoms → HPO IDs
-  const userHPOs = symptoms
-    .map(s => symptomToHPO[s.toLowerCase()])
-    .filter(Boolean);
+      let matchCount = 0;
 
-  if (userHPOs.length === 0) {
-    return res.json({
-      inputSymptoms: symptoms,
-      mappedHPOs: [],
-      matches: []
-    });
+      for (const s of symptoms) {
+        const ss = String(s).toLowerCase();
+
+        if (disease.name?.toLowerCase().includes(ss))
+          matchCount++;
+
+        if (Array.isArray(disease.aliases)) {
+          for (const a of disease.aliases) {
+            if (String(a).toLowerCase().includes(ss)) {
+              matchCount++;
+              break;
+            }
+          }
+        }
+      }
+
+      if (matchCount > 0) {
+        matches.push({
+          id: disease.id,
+          name: disease.name,
+          definition: disease.def || disease.definition || null,
+          aliases: disease.aliases || [],
+          matchedSymptoms: matchCount
+        });
+      }
+    }
   }
-
-  const results = [];
-
-  for (const disease of Object.values(commonDiseaseMap)) {
-    const diseaseHPOs = disease.symptoms;
-
-    const matched = diseaseHPOs.filter(hpo =>
-      userHPOs.includes(hpo)
-    );
-
-    if (matched.length === 0) continue;
-
-    const score = matched.length / diseaseHPOs.length;
-
-    results.push({
-      id: disease.id,
-      name: disease.name,
-      matchedSymptoms: matched.length,
-      totalSymptoms: diseaseHPOs.length,
-      score: Number(score.toFixed(2)),
-      matchedHPOs: matched
-    });
-  }
-
-  results.sort((a, b) => b.score - a.score);
-
+  matches.sort((a, b) => b.matchedSymptoms - a.matchedSymptoms);
   res.json({
-    inputSymptoms: symptoms,
-    mappedHPOs: userHPOs,
-    totalMatches: results.length,
-    matches: results
+    symptoms,
+    age: typeof age === 'number' ? age : null,
+    totalMatches: matches.length,
+    matches: matches.slice(0, 10)
+  });
+});
+app.get('/api/diseases', (req, res) => {
+  res.json(diseasesData);
+});
+app.all('/api/diagnose', (req, res) => {
+  res.status(405).json({
+    error: "Method Not Allowed",
+    allowed: "POST"
   });
 });
 
-/* =========================
-   PING (TEST)
-========================= */
-app.get("/api/ping", (req, res) => {
-  res.json({ ok: true });
-});
+app.use(express.static(path.join(__dirname)));
 
-/* =========================
-   START SERVER
-========================= */
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

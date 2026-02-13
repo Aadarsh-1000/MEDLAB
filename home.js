@@ -2,7 +2,6 @@ const selector = document.getElementById('symptoms');
 const symArray = [['fever', 'cough', 'sore throat', 'runny nose', 'headache', 'myalgia', 'fatigue', 'shortness of breath', 'chest pain', 'abdominal pain', 'nausea', 'vomiting', 'diarrhoea', 'dysuria', 'frequency', 'rash', 'joint pain', 'anosmia', 'loss of taste', 'photophobia', 'rigors', 'night sweats', 'wheeze', 'flank pain', 'back pain', 'dizziness', 'syncope', 'hematuria', 'jaundice', 'weight loss']]
 let symps = [];
 
-// Age slider / input handling
 let selectedAge = null;
 const slider = document.getElementById('slider');
 const ageInput = document.getElementById('age-input');
@@ -44,33 +43,47 @@ selector.addEventListener('change', function () {
         symps.push(selSym);
         let seen = new Set();
         let removedCount = 0;
-        for (let i = symps.length; i >= 0; i--) {
-            if (seen.has(symps[i])) {
-                symps.splice(i-1, 1);
+        for (let i = symps.length - 1; i >= 0; i--) {
+            const currentId = symps[i];
+
+            // 1. Logic for specific ID "67" (Run this independently)
+            if (currentId === "67") {
+                selSym1.textContent = "Mental Illness";
+                selSym1.id = "67";
+                // Ensure display[0] exists before appending
+                if (display[0]) display[0].appendChild(selSym1);
+            }
+
+            // 2. Duplicate Removal Logic
+            if (seen.has(currentId)) {
+                symps.splice(i, 1); // Remove the actual duplicate
                 removedCount++;
-                const removed = document.getElementById(symps[i]);
+
+                const removed = document.getElementById(currentId);
                 if (removed) {
                     removed.remove();
-                    console.log(symps)
                 }
             } else {
-                seen.add(symps[i]);
+                seen.add(currentId);
             }
         }
-        if (removedCount > 0) {
-            alert('Same symptom cannot be placed twice.');
+
+    }
+
+    if (removedCount > 0) {
+        alert('Same symptom cannot be placed twice.');
+    }
+    if (display.length > 0) {
+        exist = display[0].querySelectorAll('.symptoms').length;
+        if (exist < 10) {
+            display[0].appendChild(selSym1);
         }
-        if (display.length > 0) {
-            exist = display[0].querySelectorAll('.symptoms').length;
-            if (exist < 10) {
-                display[0].appendChild(selSym1);
-            }
-            else {
-                window.alert('Can only upload upto 10 symptoms.');
-            }
+        else {
+            window.alert('Can only upload upto 10 symptoms.');
         }
     }
-});
+}
+);
 
 // Diagnose: send selected symptoms to backend
 async function diagnoseSymptoms() {
@@ -121,7 +134,7 @@ function displayDiagnosisResults(data) {
     data.matches.forEach(match => {
         const el = document.createElement('div');
         el.className = 'result-item';
-        const defText = match.definition && (match.definition.text || match.definition || '') ;
+        const defText = match.definition && (match.definition.text || match.definition || '');
         el.innerHTML = `
             <h3>${match.name}</h3>
             <p><strong>ID:</strong> ${match.id}</p>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,62 +13,74 @@
   <div id="diagnosis-results"></div>
 
   <script>
-    // ✅ LOAD SYMPTOMS FROM STORAGE
-    const symps = JSON.parse(
-      localStorage.getItem("selectedSymptoms")
-    ) || [];
+ 
+  const symps = JSON.parse(localStorage.getItem("selectedSymptoms")) || [];
+  const container = document.getElementById("diagnosis-results");
 
-    console.log("Loaded symptoms:", symps);
+  if (symps.length === 0) {
+    container.innerHTML = `<p class="message">No symptoms provided.</p>`;
+  } else {
+    diagnose();
+  }
 
-    if (symps.length === 0) {
-      document.getElementById("diagnosis-results").innerHTML =
-        "<p>No symptoms provided.</p>";
-    } else {
-      diagnose();
-    }
+  async function diagnose() {
+    container.innerHTML = `<div class="spinner"></div>`;
 
-    async function diagnose() {
-      try {
-        const res = await fetch("/api/diagnose", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ symptoms: symps })
-        });
-
-        const data = await res.json();
-        renderResults(data);
-      } catch (err) {
-        console.error(err);
-        document.getElementById("diagnosis-results").innerHTML =
-          "<p>Failed to connect to backend.</p>";
-      }
-    }
-
-    function renderResults(data) {
-      const container = document.getElementById("diagnosis-results");
-      container.innerHTML = "";
-
-      if (!data.matches || data.matches.length === 0) {
-        container.innerHTML = "<p>No matching conditions found.</p>";
-        return;
-      }
-
-      data.matches.forEach(d => {
-        const div = document.createElement("div");
-        div.className = "result";
-        div.innerHTML = `
-          <strong>${d.name}</strong><br>
-          Matched symptoms: ${d.matchedSymptoms}
-        `;
-        container.appendChild(div);
+    try {
+      const res = await fetch("http://localhost:3000/api/diagnose", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symptoms: symps })
       });
+
+      const data = await res.json();
+      renderResults(data);
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = `<p class="message">⚠️ Backend not running on port 3000.</p>`;
     }
+  }
+
+  function renderResults(data) {
+    container.innerHTML = "";
+
+    if (!data.matches || data.matches.length === 0) {
+      container.innerHTML = `<p class="message">No matching conditions found.</p>`;
+      return;
+    }
+
+    data.matches.forEach(d => {
+      const div = document.createElement("div");
+      div.className = "result";
+      div.innerHTML = `
+        <strong>${d.name}</strong>
+        <span>Matched symptoms: ${d.matchedSymptoms}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
   </script>
 
   <style>
-    body { font-family: sans-serif; background: #fafafa; }
-    .result { background: #eee; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+    body {
+      font-family: sans-serif;
+      background-image: linear-gradient(to top, rgba(0, 221, 255, 0.258), rgb(255, 255, 255));
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .result {
+      background: #ffffff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      max-width: 30%;
+
+    }
   </style>
 
 </body>
+
 </html>
