@@ -6,14 +6,9 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
+app.use(cors());
+const synonymMap = require("./medical_synonyms");
 
-// Explicit preflight handler
-app.options('*', cors());
 
 app.use(express.json());
 
@@ -45,8 +40,12 @@ app.post('/api/diagnose', (req, res) => {
 
       for (const s of symptoms) {
         const ss = String(s).toLowerCase();
+        const allText = [
+          disease.name,
+          ...(disease.aliases || [])
+        ].join(" ").toLowerCase();
 
-        if (disease.name?.toLowerCase().includes(ss))
+        if (allText.includes(ss))
           matchCount++;
 
         if (Array.isArray(disease.aliases)) {
@@ -92,7 +91,7 @@ app.use(express.static(path.join(__dirname)));
 
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
-});
+});``
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

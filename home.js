@@ -95,11 +95,13 @@ async function diagnoseSymptoms() {
     try {
         const payload = { symptoms: symps };
         if (selectedAge !== null) payload.age = selectedAge;
-        const res = await fetch('/api/diagnose', {
+
+        const res = await fetch('http://localhost:3000/api/diagnose', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
 
         if (!res.ok) throw new Error('Server error');
         const data = await res.json();
