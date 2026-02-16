@@ -112,23 +112,24 @@ async function diagnoseSymptoms() {
     }
 }
 
+
+
 function displayDiagnosisResults(data) {
     const container = document.getElementById('diagnosis-results');
     if (!container) return;
     container.innerHTML = '';
 
     const title = document.createElement('h2');
-    title.textContent = `Found ${data.matches.length} possible condition(s)`;
+    title.textContent = `Top probable conditions`;
     container.appendChild(title);
 
-    // show age if present in response
     if (data.age !== undefined && data.age !== null) {
         const ageEl = document.createElement('p');
         ageEl.innerHTML = `<strong>Age:</strong> ${data.age}`;
         container.appendChild(ageEl);
     }
 
-    if (data.matches.length === 0) {
+    if (!data.matches || data.matches.length === 0) {
         container.appendChild(document.createElement('p')).textContent = 'No matches found.';
         return;
     }
@@ -136,18 +137,20 @@ function displayDiagnosisResults(data) {
     data.matches.forEach(match => {
         const el = document.createElement('div');
         el.className = 'result-item';
-        const defText = match.definition && (match.definition.text || match.definition || '');
+
         el.innerHTML = `
             <h3>${match.name}</h3>
             <p><strong>ID:</strong> ${match.id}</p>
-            <p><strong>Matched Symptoms:</strong> ${match.matchedSymptoms}</p>
-            <p><strong>Definition:</strong> ${defText}</p>
+            <p><strong>Confidence:</strong> ${match.confidence}%</p>
+            <p><strong>Score:</strong> ${match.weightedScore}</p>
         `;
+
         container.appendChild(el);
     });
 }
 
-// wire up diagnose button
+
+// wire up diafunctiongnose button
 const diagnoseBtn = document.getElementById('diagnose-btn');
 if (diagnoseBtn) diagnoseBtn.addEventListener('click', diagnoseSymptoms);
 
