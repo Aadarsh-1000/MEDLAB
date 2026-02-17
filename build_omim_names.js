@@ -10,9 +10,9 @@ for (const line of lines) {
   const cols = line.split("\t");
   if (cols.length < 3) continue;
 
-  const db = cols[0];        // OMIM
-  const id = cols[1];        // 621304
-  const name = cols[2];      // real disease name
+  const db = cols[0];     
+  const id = cols[1];       
+  const name = cols[2];     
 
   if (db && id && name) {
     map[`${db}:${id}`] = name;
