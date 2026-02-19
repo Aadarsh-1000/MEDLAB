@@ -9,13 +9,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const synonymMap = require("./medical_synonyms");
-
 // ---------------- LOGGER ----------------
 app.use((req, res, next) => {
   console.log(`➡️  ${req.method} ${req.url}`);
   next();
 });
+
+// ---------------- LOAD SYNONYMS ----------------
+const synonymMap = require("./medical_synonyms");
 
 // ---------------- LOAD OPEN DISEASE NAMES ----------------
 let diseaseRealNames = {};
@@ -23,12 +24,12 @@ try {
   diseaseRealNames = JSON.parse(
     fs.readFileSync(path.join(__dirname, "open_disease_names.json"), "utf8")
   );
-  console.log("✅ open disease names loaded:", Object.keys(diseaseRealNames).length);
+  console.log("✅ Open disease names loaded");
 } catch {
-  console.log("⚠️ open_disease_names.json not found — using fallback names");
+  console.log("⚠️ open_disease_names.json not found");
 }
 
-// ---------------- LOAD MEDICAL KNOWLEDGE ----------------
+// ---------------- LOAD MEDICAL DATA ----------------
 let symptomsIndex = [];
 let diseaseSymptoms = {};
 
@@ -41,10 +42,10 @@ try {
     fs.readFileSync(path.join(__dirname, "disease_symptoms.json"), "utf8")
   );
 
-  console.log("✅ HPO symptoms loaded:", symptomsIndex.length);
-  console.log("✅ Disease profiles loaded:", Object.keys(diseaseSymptoms).length);
-} catch (e) {
-  console.error("❌ Failed loading medical DB:", e.message);
+  console.log("✅ Symptoms loaded:", symptomsIndex.length);
+  console.log("✅ Diseases loaded:", Object.keys(diseaseSymptoms).length);
+} catch (err) {
+  console.error("❌ Failed loading data:", err.message);
 }
 
 // ---------------- BUILD SYMPTOM WEIGHTS ----------------
@@ -52,8 +53,8 @@ const symptomFrequency = {};
 const totalDiseases = Object.keys(diseaseSymptoms).length || 1;
 
 for (const disease of Object.values(diseaseSymptoms)) {
-  for (const symptom of disease.symptoms || []) {
-    const hpo = typeof symptom === "string" ? symptom : symptom.id;
+  for (const s of disease.symptoms || []) {
+    const hpo = typeof s === "string" ? s : s.id;
     symptomFrequency[hpo] = (symptomFrequency[hpo] || 0) + 1;
   }
 }
@@ -66,21 +67,18 @@ function symptomWeight(hpo) {
 // ---------------- WORD NORMALIZATION ----------------
 function expandWords(words) {
   const expanded = [];
-
   for (const w of words) {
     const key = String(w).toLowerCase().replace(/\s/g, "");
     expanded.push(w);
-
     if (synonymMap[key]) expanded.push(...synonymMap[key]);
   }
-
   return [...new Set(expanded)];
 }
 
 // ---------------- FUZZY MATCH ----------------
 function similarity(a, b) {
-  a = String(a).toLowerCase();
-  b = String(b).toLowerCase();
+  a = a.toLowerCase();
+  b = b.toLowerCase();
 
   if (a === b) return 1;
   if (a.includes(b) || b.includes(a)) return 0.85;
@@ -94,7 +92,7 @@ function similarity(a, b) {
   return common / Math.max(aw.length, bw.length);
 }
 
-// ---------------- MAP WORDS → HPO IDs ----------------
+// ---------------- MAP WORDS → HPO ----------------
 function mapWordsToHPO(words) {
   const expanded = expandWords(words);
   const matched = new Set();
@@ -102,7 +100,6 @@ function mapWordsToHPO(words) {
   for (const w of expanded) {
     for (const s of symptomsIndex) {
       const candidates = [s.name, ...(s.aliases || [])];
-
       for (const c of candidates) {
         if (similarity(w, c) > 0.6) {
           matched.add(s.id);
@@ -115,48 +112,120 @@ function mapWordsToHPO(words) {
   return [...matched];
 }
 
-// ---------------- HUMAN FRIENDLY NAME ----------------
+// ---------------- NAME RESOLUTION ----------------
 function resolveDiseaseName(disease) {
   if (diseaseRealNames[disease.id]) return diseaseRealNames[disease.id];
   if (disease.name) return disease.name;
-
-  if (disease.id?.startsWith("OMIM:"))
-    return `Rare genetic disorder (OMIM ${disease.id.split(":")[1]})`;
-
-  if (disease.id?.startsWith("ORPHA:"))
-    return `Rare disease (Orphanet ${disease.id.split(":")[1]})`;
-
   return disease.id || "Unknown disease";
 }
 
-// ---------------- DIAGNOSIS ENGINE ----------------
+// ---------------- GENDER FILTERING ----------------
+const FEMALE_ONLY_KEYWORDS = [
+  "ovary", "ovarian", "uterus", "uterine", "cervix", "cervical",
+  "endometriosis", "pregnancy", "menstrual", "pcos", "vaginal"
+];
+
+const MALE_ONLY_KEYWORDS = [
+  "prostate", "testicular", "testis", "penile",
+  "erectile", "sperm", "scrotal"
+];
+const PEDIATRIC_KEYWORDS = [
+  "pediatric",
+  "childhood",
+  "infant",
+  "neonatal",
+  "congenital",
+  "juvenile",
+  "inborn"
+];
+
+const ADULT_ONLY_KEYWORDS = [
+  "adult onset",
+  "adult-onset",
+  "late onset",
+  "age-related",
+  "senile"
+];
+
+function isGenderCompatible(name, gender) {
+  if (!gender) return true;
+
+  const n = name.toLowerCase();
+
+  if (gender === "male") {
+    return !FEMALE_ONLY_KEYWORDS.some(k => n.includes(k));
+  }
+
+  if (gender === "female") {
+    return !MALE_ONLY_KEYWORDS.some(k => n.includes(k));
+  }
+
+  return true;
+}
+function isAgeCompatible(name, age) {
+  if (!age) return true;
+
+  const n = name.toLowerCase();
+
+  // Adults should not see pediatric-only diseases
+  if (age >= 18) {
+    return !PEDIATRIC_KEYWORDS.some(k => n.includes(k));
+  }
+
+  // Children should not see adult-only diseases
+  if (age < 18) {
+    return !ADULT_ONLY_KEYWORDS.some(k => n.includes(k));
+  }
+
+  return true;
+}
+
+
+function isAgeCompatible(diseaseName, age) {
+  if (!age) return true;
+
+  const name = diseaseName.toLowerCase();
+
+  // Pediatric-only diseases
+  if (age >= 18) {
+    for (const word of PEDIATRIC_KEYWORDS) {
+      if (name.includes(word)) return false;
+    }
+  }
+
+  // Adult-only diseases
+  if (age < 18) {
+    for (const word of ADULT_ONLY_KEYWORDS) {
+      if (name.includes(word)) return false;
+    }
+  }
+
+  return true;
+}
+
+
+// ---------------- DIAGNOSIS API ----------------
 app.post("/api/diagnose", (req, res) => {
-  const { symptoms, age } = req.body;
+  const { symptoms, age, gender } = req.body;
 
   if (!Array.isArray(symptoms) || symptoms.length === 0) {
     return res.status(400).json({ error: "No symptoms provided" });
   }
 
-  // Step 1: human → HPO
   const hpoTerms = mapWordsToHPO(symptoms);
-
   if (hpoTerms.length === 0) {
-    return res.json({
-      message: "No clinical symptoms recognized",
-      recognizedSymptoms: 0,
-      inputSymptoms: symptoms,
-      matches: []
-    });
+    return res.json({ matches: [] });
   }
 
   const results = [];
 
-  // Step 2: weighted scoring
   for (const disease of Object.values(diseaseSymptoms)) {
-    const rawSymptoms = disease.symptoms || [];
-    const hpoOnly = rawSymptoms.map(s =>
-      typeof s === "string" ? s : s.id
-    );
+    const diseaseName = disease.name || "";
+
+    if (!isGenderCompatible(diseaseName, gender)) continue;
+
+    const raw = disease.symptoms || [];
+    const hpoOnly = raw.map(s => (typeof s === "string" ? s : s.id));
 
     let score = 0;
     const matchedSymptoms = [];
@@ -164,20 +233,8 @@ app.post("/api/diagnose", (req, res) => {
     for (const h of hpoTerms) {
       if (hpoOnly.includes(h)) {
         score += symptomWeight(h);
-
-        const full = rawSymptoms.find(s =>
-          (typeof s === "string" ? s : s.id) === h
-        );
-
-       if (full) {
-  if (typeof full === "object" && full.name) {
-    matchedSymptoms.push(full.name);
-  } else {
-    const lookup = symptomsIndex.find(x => x.id === h);
-    matchedSymptoms.push(lookup ? lookup.name : h);
-  }
-}
-
+        const lookup = symptomsIndex.find(x => x.id === h);
+        matchedSymptoms.push(lookup ? lookup.name : h);
       }
     }
 
@@ -185,28 +242,26 @@ app.post("/api/diagnose", (req, res) => {
       results.push({
         id: disease.id,
         name: resolveDiseaseName(disease),
-        weightedScore: Number(score.toFixed(3)),
         confidence: Math.min(100, Math.round(score * 12)),
         matchedSymptoms
       });
     }
   }
 
-  results.sort((a, b) => b.weightedScore - a.weightedScore);
+  results.sort((a, b) => b.confidence - a.confidence);
 
   res.json({
-    recognizedSymptoms: hpoTerms.length,
-    inputSymptoms: symptoms,
     age: age ?? null,
+    gender: gender ?? null,
     matches: results.slice(0, 10)
   });
 });
 
-// ---------------- STATIC + ROUTES ----------------
+// ---------------- STATIC + ERRORS ----------------
 app.use(express.static(path.join(__dirname)));
 
 app.all("/api/diagnose", (req, res) => {
-  res.status(405).json({ error: "Method Not Allowed", allowed: "POST" });
+  res.status(405).json({ error: "POST only" });
 });
 
 app.use((req, res) => {

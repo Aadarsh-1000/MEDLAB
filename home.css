@@ -30,6 +30,9 @@ header {
     border-radius: 15px;
 }
 
+
+
+
 .logo {
     display: flex;
 }
@@ -191,6 +194,15 @@ nav a {
     border: 2px solid #7c7b7b07;
 }
 
+    .buttons button.active {
+        background-color: #00fff7b9;
+        color: white;
+        box-shadow: 0 6px 18px rgba(0, 255, 247, 0.35);
+        transform: scale(1.05);
+    }
+
+
+
 button:hover {
     background-color: #00fff7b9;
     color: #ffffff;
@@ -220,4 +232,19 @@ span {
     text-align: center;
     position: relative;
     min-width: 500px;
+}
+
+button.start {
+    position: fixed !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 1rem !important;
+    color: #0077b6 !important;
+    cursor: pointer !important;
+    right: -px !important;
+    bottom: 20px !important;
+    right: 20px !important;
 }
