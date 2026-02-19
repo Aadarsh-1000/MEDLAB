@@ -6,32 +6,25 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+/* =========================
+   MIDDLEWARE
+========================= */
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
-// ---------------- LOGGER ----------------
+// Request logger
 app.use((req, res, next) => {
   console.log(`➡️  ${req.method} ${req.url}`);
   next();
 });
 
-// ---------------- LOAD SYNONYMS ----------------
-const synonymMap = require("./medical_synonyms");
-
-// ---------------- LOAD OPEN DISEASE NAMES ----------------
-let diseaseRealNames = {};
-try {
-  diseaseRealNames = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "open_disease_names.json"), "utf8")
-  );
-  console.log("✅ Open disease names loaded");
-} catch {
-  console.log("⚠️ open_disease_names.json not found");
-}
-
-// ---------------- LOAD MEDICAL DATA ----------------
+/* =========================
+   LOAD DATA
+========================= */
 let symptomsIndex = [];
 let diseaseSymptoms = {};
+let diseaseRealNames = {};
 
 try {
   symptomsIndex = JSON.parse(
@@ -45,10 +38,26 @@ try {
   console.log("✅ Symptoms loaded:", symptomsIndex.length);
   console.log("✅ Diseases loaded:", Object.keys(diseaseSymptoms).length);
 } catch (err) {
-  console.error("❌ Failed loading data:", err.message);
+  console.error("❌ Failed loading medical data:", err.message);
 }
 
-// ---------------- BUILD SYMPTOM WEIGHTS ----------------
+try {
+  diseaseRealNames = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "open_disease_names.json"), "utf8")
+  );
+  console.log("✅ Disease names loaded");
+} catch {
+  console.log("⚠️ open_disease_names.json not found");
+}
+
+/* =========================
+   SYNONYMS
+========================= */
+const synonymMap = require("./medical_synonyms");
+
+/* =========================
+   SYMPTOM WEIGHTS (TF-IDF)
+========================= */
 const symptomFrequency = {};
 const totalDiseases = Object.keys(diseaseSymptoms).length || 1;
 
@@ -64,7 +73,9 @@ function symptomWeight(hpo) {
   return Math.log(totalDiseases / freq);
 }
 
-// ---------------- WORD NORMALIZATION ----------------
+/* =========================
+   TEXT NORMALIZATION
+========================= */
 function expandWords(words) {
   const expanded = [];
   for (const w of words) {
@@ -75,7 +86,6 @@ function expandWords(words) {
   return [...new Set(expanded)];
 }
 
-// ---------------- FUZZY MATCH ----------------
 function similarity(a, b) {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -92,7 +102,6 @@ function similarity(a, b) {
   return common / Math.max(aw.length, bw.length);
 }
 
-// ---------------- MAP WORDS → HPO ----------------
 function mapWordsToHPO(words) {
   const expanded = expandWords(words);
   const matched = new Set();
@@ -112,140 +121,93 @@ function mapWordsToHPO(words) {
   return [...matched];
 }
 
-// ---------------- NAME RESOLUTION ----------------
-function resolveDiseaseName(disease) {
-  if (diseaseRealNames[disease.id]) return diseaseRealNames[disease.id];
-  if (disease.name) return disease.name;
-  return disease.id || "Unknown disease";
-}
+/* =========================
+   DEMOGRAPHIC FILTERS
+========================= */
+const FEMALE_ONLY = ["ovary", "uterus", "cervix", "pregnancy", "menstrual", "pcos"];
+const MALE_ONLY = ["prostate", "testicular", "penile"];
+const PEDIATRIC = ["pediatric", "childhood", "infant", "neonatal", "congenital"];
+const ADULT_ONLY = ["adult onset", "late onset", "senile"];
 
-// ---------------- GENDER FILTERING ----------------
-const FEMALE_ONLY_KEYWORDS = [
-  "ovary", "ovarian", "uterus", "uterine", "cervix", "cervical",
-  "endometriosis", "pregnancy", "menstrual", "pcos", "vaginal"
-];
-
-const MALE_ONLY_KEYWORDS = [
-  "prostate", "testicular", "testis", "penile",
-  "erectile", "sperm", "scrotal"
-];
-const PEDIATRIC_KEYWORDS = [
-  "pediatric",
-  "childhood",
-  "infant",
-  "neonatal",
-  "congenital",
-  "juvenile",
-  "inborn"
-];
-
-const ADULT_ONLY_KEYWORDS = [
-  "adult onset",
-  "adult-onset",
-  "late onset",
-  "age-related",
-  "senile"
-];
-
-function isGenderCompatible(name, gender) {
+function genderCompatible(name, gender) {
   if (!gender) return true;
-
   const n = name.toLowerCase();
-
-  if (gender === "male") {
-    return !FEMALE_ONLY_KEYWORDS.some(k => n.includes(k));
-  }
-
-  if (gender === "female") {
-    return !MALE_ONLY_KEYWORDS.some(k => n.includes(k));
-  }
-
+  if (gender === "male") return !FEMALE_ONLY.some(k => n.includes(k));
+  if (gender === "female") return !MALE_ONLY.some(k => n.includes(k));
   return true;
 }
-function isAgeCompatible(name, age) {
-  if (!age) return true;
 
+function ageCompatible(name, age) {
+  if (!age) return true;
   const n = name.toLowerCase();
-
-  // Adults should not see pediatric-only diseases
-  if (age >= 18) {
-    return !PEDIATRIC_KEYWORDS.some(k => n.includes(k));
-  }
-
-  // Children should not see adult-only diseases
-  if (age < 18) {
-    return !ADULT_ONLY_KEYWORDS.some(k => n.includes(k));
-  }
-
+  if (age >= 18) return !PEDIATRIC.some(k => n.includes(k));
+  if (age < 18) return !ADULT_ONLY.some(k => n.includes(k));
   return true;
 }
 
-
-function isAgeCompatible(diseaseName, age) {
-  if (!age) return true;
-
-  const name = diseaseName.toLowerCase();
-
-  // Pediatric-only diseases
-  if (age >= 18) {
-    for (const word of PEDIATRIC_KEYWORDS) {
-      if (name.includes(word)) return false;
-    }
-  }
-
-  // Adult-only diseases
-  if (age < 18) {
-    for (const word of ADULT_ONLY_KEYWORDS) {
-      if (name.includes(word)) return false;
-    }
-  }
-
-  return true;
+function resolveDiseaseName(d) {
+  return diseaseRealNames[d.id] || d.name || d.id || "Unknown disease";
 }
 
+/* =========================
+   DIAGNOSIS API (FIXED)
+========================= */
+const SIMPLE_PRESENTATION_LIMIT = 3;
 
-// ---------------- DIAGNOSIS API ----------------
 app.post("/api/diagnose", (req, res) => {
   const { symptoms, age, gender } = req.body;
 
-  if (!Array.isArray(symptoms) || symptoms.length === 0) {
-    return res.status(400).json({ error: "No symptoms provided" });
+  if (!Array.isArray(symptoms) || symptoms.length < 2) {
+    return res.json({
+      note: "Add more symptoms for better accuracy",
+      matches: []
+    });
   }
 
-  const hpoTerms = mapWordsToHPO(symptoms);
-  if (hpoTerms.length === 0) {
+  const userHPOs = mapWordsToHPO(symptoms);
+  if (userHPOs.length === 0) {
     return res.json({ matches: [] });
   }
 
+  const simpleCase = userHPOs.length <= SIMPLE_PRESENTATION_LIMIT;
   const results = [];
 
   for (const disease of Object.values(diseaseSymptoms)) {
-    const diseaseName = disease.name || "";
+    const name = disease.name || "";
+    if (!genderCompatible(name, gender)) continue;
+    if (!ageCompatible(name, age)) continue;
 
-    if (!isGenderCompatible(diseaseName, gender)) continue;
-
-    const raw = disease.symptoms || [];
-    const hpoOnly = raw.map(s => (typeof s === "string" ? s : s.id));
+    const diseaseHPOs = (disease.symptoms || []).map(s =>
+      typeof s === "string" ? s : s.id
+    );
 
     let score = 0;
     const matchedSymptoms = [];
 
-    for (const h of hpoTerms) {
-      if (hpoOnly.includes(h)) {
+    for (const h of userHPOs) {
+      if (diseaseHPOs.includes(h)) {
         score += symptomWeight(h);
-        const lookup = symptomsIndex.find(x => x.id === h);
-        matchedSymptoms.push(lookup ? lookup.name : h);
+        const s = symptomsIndex.find(x => x.id === h);
+        matchedSymptoms.push(s ? s.name : h);
       }
     }
 
-    if (score > 0) {
-      results.push({
-        id: disease.id,
-        name: resolveDiseaseName(disease),
-        confidence: Math.min(100, Math.round(score * 12)),
-        matchedSymptoms
-      });
-    }
+    if (score <= 0) continue;
+
+    const isCommon = disease.id?.startsWith("COMMON");
+
+    // 🚫 hide rare diseases for simple symptom sets
+    if (simpleCase && !isCommon) continue;
+
+    // 🎯 boost common diseases
+    if (isCommon) score *= 1.8;
+
+    results.push({
+      id: disease.id,
+      name: resolveDiseaseName(disease),
+      confidence: Math.min(100, Math.round(score * 12)),
+      matchedSymptoms
+    });
   }
 
   results.sort((a, b) => b.confidence - a.confidence);
@@ -253,22 +215,30 @@ app.post("/api/diagnose", (req, res) => {
   res.json({
     age: age ?? null,
     gender: gender ?? null,
+    note: simpleCase
+      ? "Results prioritise common conditions. Add more symptoms for rare diseases."
+      : null,
     matches: results.slice(0, 10)
   });
 });
 
-// ---------------- STATIC + ERRORS ----------------
-app.use(express.static(path.join(__dirname)));
-
+/* =========================
+   SAFETY ROUTES
+========================= */
 app.all("/api/diagnose", (req, res) => {
   res.status(405).json({ error: "POST only" });
+  console.log("Mapped HPOs:", userHPOs);
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+
+
+app.get("/api/ping", (req, res) => {
+  res.json({ ok: true });
 });
 
-// ---------------- START SERVER ----------------
+/* =========================
+   START SERVER
+========================= */
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

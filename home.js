@@ -159,3 +159,4 @@ genderButtons.female?.addEventListener('click', () => setGender('female'));
 genderButtons.other?.addEventListener('click', () => setGender(null));
 
 setGender(selectedGender);
+
