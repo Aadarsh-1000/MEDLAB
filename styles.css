@@ -129,7 +129,9 @@ a {
 
 .login-button {
     position: absolute;
-    margin-left: 140%;
+    cursor: not-allowed;
+    content: "comming soon";
+    margin-left: 100%;
     top: -10px;
     padding: 8px 20px;
     font-size: 1rem;

@@ -23,14 +23,15 @@
         <nav class="nav-links">
             <a href="#">Home</a>
             <a href="https://raw.githubusercontent.com/Aadarsh-1000/MEDLAB/main/README.md">About</a>
-            <a href="#">Contact</a>
+            <a href="Feedback.html">Feedback</a>
 
             <a href="login.html"><button class="login-button" id="llb">Login</button>
-            <a href="signup.html" class="signup-button" id="lsb">Sign Up</a>
+                <a href="signup.html" class="signup-button" id="lsb">Sign Up</a>
             </a>
         </nav>
     </nav>
     <section class="home">
+        
 
         <header>
             <div class="logo-1">
@@ -45,6 +46,34 @@
         </a>
 
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js">
+        document.querySelectorAll('.login-button, .signup-button')
+            .forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    alert("You cant access this feature! Sorry i am working on the backend for this.");
+                });
+            });
+
+
+    (function(){
+    emailjs.init("kHMV4Gx7QuhS_nPpk");
+    })();
+
+    document.getElementById("contact-form").addEventListener("submit", function(event) {
+    event.preventDefault(); 
+
+    emailjs.sendForm("service_sk4kmtg", "template_eoygz4o", this)
+    .then(function() {
+    alert("Message sent successfully! ✅");
+    document.getElementById("contact-form").reset(); 
+    }, function(error) {
+    alert("Failed to send message ❌ Please try again.");
+    console.error("EmailJS error:", error);
+    });
+    });
+    </script>
+
 </body>
 
 </html>

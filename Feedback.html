@@ -4,88 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>MEDLAB CONTACT</title>
 </head>
 
 <body>
-    <h1>MEDLAB FEEDBACK</h1>
-    <span>TOTAL RATING: 0/5</span>
+    <h1>MEDLAB CONTACT</h1>
 
-    <textarea class="textarea" placeholder="Please enter feedback"></textarea>
-    <div class="stars">
-        <div id="star">&#9733; </div>
-        <div id="star">&#9733; </div>
-        <div id="star">&#9733; </div>
-        <div id="star">&#9733; </div>
-        <div id="star">&#9733; </div>
+    <form id="contact-form">
+        <input type="text" name="user_name" placeholder="Full Name" required>
+        <input type="email" name="user_email" placeholder="Email Address" required>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit">Send</button>
+    </form>
 
-        <p>Thank you for your rating</p>
-    </div>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-        html {
-            display: block;
-        }
 
-        h1 {
-            font-family: "Poppins";
-            text-align: center;
-            display: block;
-        }
+    <script>
+        (function () {
+            emailjs.init(""); 
+        })();
 
-        span {
-            font-family: "Poppins";
-            text-align: center;
-            justify-content: center;
-            display: flex;
-            color: black;
-            font-weight: 700;
-        }
+        document.getElementById("contact-form").addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        p {
-            font-family: "Poppins";
-            text-align: center;
-            display: block;
-            top: 50%;
-            font-size: medium;
-            font-weight: 400;
-            position: absolute;
-        }
-
-        textarea {
-            background-color: #dadada;
-            color: #666666;
-            padding: 1em;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            align-items: center;
-            justify-content: center;
-            height: 20%;
-            width: 50%;
-            transform: translateX(40%);
-            margin-top: 10%;
-            position: absolute;
-            display: block;
-
-        }
-
-        textarea::placeholder {
-            text-align: center;
-            font-family: "Poppins";
-            font-weight: 600;
-
-        }
-
-        .stars {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-
+            emailjs.sendForm("", "", this) 
+                .then(function () {
+                    alert("message sent");
+                    document.getElementById("contact-form").reset();
+                }, function (error) {
+                    alert("Did not work");
+                    console.error("EmailJS error:", error);
+                });
+        });
     </script>
 
 </body>
